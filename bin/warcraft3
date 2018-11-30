@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export WINEPREFIX="${HOME}/Games/battlenet/"
+export WINEARCH='win64'
+export WINEDEBUG='-all'
+
+if [ $# -ne 0 ]
+then
+  $@
+else
+  wine "${WINEPREFIX}drive_c/Program Files (x86)/Warcraft III/Warcraft III.exe" -window
+fi
