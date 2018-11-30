@@ -1,0 +1,27 @@
+#!/bin/bash
+
+export WINEPREFIX="${HOME}/Games/magic-the-gathering-arena/"
+export WINEARCH='win64'
+export WINEDEBUG='-all'
+
+export INSTALLER_BIN='MTGAInstaller.exe'
+export INSTALLER_URL="https://mtgarena.downloads.wizards.com/Live/Windows32/${INSTALLER_BIN}"
+
+if [ $# -ne 0 ]
+then
+  if [ "${1}" == "reinstall" ]
+  then
+    echo "Reinstalling.."
+    cp $WINEPREFIX/user.reg /tmp/
+    rm -rf $WINEPREFIX
+    mkdir $WINEPREFIX
+    mv /tmp/user.reg $WINEPREFIX
+    cd $WINEPREFIX
+    wget $INSTALLER_URL
+    wine $INSTALLER_BIN
+  else
+    $@
+  fi
+else
+  wine "${WINEPREFIX}/drive_c/Program Files (x86)/Wizards of the Coast/MTGA/MTGA.exe"
+fi
