@@ -1,0 +1,32 @@
+#!/bin/bash
+
+export WINEPREFIX="${HOME}/Games/star_citizen/"
+export WINEARCH='win64'
+export WINEDEBUG='-all'
+
+export INSTALLER_BIN='RSI-Setup-1.0.1.exe'
+export INSTALLER_URL="https://install.robertsspaceindustries.com/star-citizen/${INSTALLER_BIN}"
+
+DXVK_VERSION='0.93'
+DXVK_DIR="dxvk-${DXVK_VERSION}"
+DXVK_TAR="${DXVK_DIR}.tar.gz"
+DXVK_URL="https://github.com/doitsujin/dxvk/releases/download/v${DXVK_VERSION}/${DXVK_TAR}"
+
+if [ $# -ne 0 ]
+then
+  if [ "${1}" == "install" ]
+  then
+    mkdir -p $WINEPREFIX
+    cd $WINEPREFIX
+    wget $INSTALLER_URL
+    wine $INSTALLER_BIN
+    wget $DXVK_URL
+    tar xzvf $DXVK_TAR
+    cd $DXVK_DIR
+    winetricks --force setup_dxvk.verb
+  else
+    $@
+  fi
+else
+  wine "${WINEPREFIX}/drive_c/Program Files/Roberts Space Industries/RSI Launcher/RSI Launcher.exe"
+fi
