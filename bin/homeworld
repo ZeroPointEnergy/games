@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# Lifted startup parameters from winehq appdb:
+# https://appdb.winehq.org/objectManager.php?sClass=version&iId=31973
+
+default_ver="r1"
+game_id=244160
+start_ver=${1-$default_ver}
+
+case ${start_ver} in
+	c1)
+		GAME_CMD="${HOME}/.steam/steam/steamapps/common/Homeworld/Homeworld1Classic/exe/Homeworld.exe"
+		GAME_OPT="/noglddraw"
+		;;
+	c2)
+		GAME_CMD="${HOME}/.steam/steam/steamapps/common/Homeworld/Homeworld2Classic/Bin/Release/Homeworld2.exe"
+		GAME_OPT=""
+		;;
+	1|rm1|r1)
+		GAME_CMD="${HOME}/.steam/steam/steamapps/common/Homeworld/HomeworldRM/Bin/Release/HomeworldRM.exe"
+		GAME_OPT="-dlccampaign HW1Campaign.big -campaign HomeworldClassic -moviepath DataHW1Campaign"
+		;;
+	2|rm2|r2)
+		GAME_CMD="${HOME}/.steam/steam/steamapps/common/Homeworld/HomeworldRM/Bin/Release/HomeworldRM.exe"
+		GAME_OPT="-dlccampaign HW2Campaign.big -campaign Ascension -moviepath DataHW2Campaign"
+		;;
+	*)
+		echo ""
+		echo " Usage: $(basename $0) [c1|c2|r1|r2]"
+		echo ""
+		echo " c1 : Homeworld 1 Classic"
+		echo " c2 : Homeworld 2 Classic"
+		echo " r1 : Homeworld 1 Remastered (default)"
+		echo " r2 : Homeworld 1 Remastered"
+		echo ""
+		exit 0
+		;;
+esac
+
+PROTON_PATH="$(ls -d1 ${HOME}/.local/share/Steam/steamapps/common/Proton* |tail -1)"
+
+[[ -d "${PROTON_PATH}" ]] || { echo "Couldn't find proton path at: ${WINE_CMD} " ; exit 1 ; }
+
+WINE_CMD="${PROTON_PATH}/dist/bin//wine64"
+
+[[ -f "${WINE_CMD}" ]] || { echo "Couldn't find wine executable at: ${WINE_CMD} " ; exit 1 ; }
+
+[[ -f "${GAME_CMD}" ]] || { echo "Couldn't find game executable at: ${GAME_CMD} " ; exit 2 ; }
+
+WINEDEBUG="-all" \
+WINEPREFIX="${HOME}/.local/share/Steam/steamapps/compatdata/${game_id}/pfx/" \
+SteamGameId="${game_id}" \
+SteamAppId="${game_id}" \
+WINEDLLOVERRIDES="d3d11=n;dxgi=n" \
+STEAM_COMPAT_CLIENT_INSTALL_PATH="${HOME}/.local/share/Steam" \
+"${WINE_CMD}" start /unix ${GAME_CMD} ${GAME_OPT} 2>/tmp/proton.out
