@@ -19,6 +19,11 @@ then
     cd $WINEPREFIX
     wget $INSTALLER_URL
     wine $INSTALLER_BIN
+  elif [ "${1}" == "download" ]
+  then
+    export WINEDEBUG='+relay,-debug'
+    export GC_DONT_GC=1
+    wine "${WINEPREFIX}/drive_c/Program Files (x86)/Wizards of the Coast/MTGA/MTGA.exe"
   else
     $@
   fi
