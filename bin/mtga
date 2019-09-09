@@ -4,7 +4,7 @@ export WINEPREFIX="${HOME}/Games/magic-the-gathering-arena/"
 export WINEARCH='win64'
 export WINEDEBUG='-all'
 
-export INSTALLER_URL='https://mtgarena.downloads.wizards.com/Live/Windows32/versions/1678.727490/MTGAInstaller_0.1.1678.727490.msi'
+export INSTALLER_URL='https://mtgarena.downloads.wizards.com/Live/Windows32/versions/1684.728405/MTGAInstaller_0.1.1684.728405.msi'
 export INSTALLER_BIN=$(basename $INSTALLER_URL)
 
 if [ $# -ne 0 ]
