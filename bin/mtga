@@ -4,7 +4,7 @@ export WINEPREFIX="${HOME}/Games/magic-the-gathering-arena/"
 export WINEARCH='win64'
 export WINEDEBUG='-all'
 
-export INSTALLER_URL='https://mtgarena.downloads.wizards.com/Live/Windows32/versions/1810.735881/MTGAInstaller_0.1.1810.735881.msi'
+export INSTALLER_URL='https://mtgarena.downloads.wizards.com/Live/Windows32/versions/1864.739803/MTGAInstaller_0.1.1864.739803.msi'
 export INSTALLER_BIN=$(basename $INSTALLER_URL)
 
 if [ $# -ne 0 ]
@@ -12,10 +12,10 @@ then
   if [ "${1}" == "reinstall" ]
   then
     echo "Reinstalling.."
-    cp $WINEPREFIX/user.reg /tmp/
-    rm -rf $WINEPREFIX
-    mkdir $WINEPREFIX
-    mv /tmp/user.reg $WINEPREFIX
+    #cp $WINEPREFIX/user.reg /tmp/
+    #rm -rf $WINEPREFIX
+    #mkdir $WINEPREFIX
+    #mv /tmp/user.reg $WINEPREFIX
     cd $WINEPREFIX
     wget $INSTALLER_URL
     wine msiexec /i $INSTALLER_BIN
