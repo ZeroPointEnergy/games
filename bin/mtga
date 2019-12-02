@@ -1,21 +1,29 @@
 #!/bin/bash
+#
+# Usage:
+#   install/reinstall:
+#   $ mtga reinstall https://mtgarena.downloads.wizards.com/Live/Windows32/versions/1968.747022/MTGAInstaller_0.1.1968.747022.msi
+#   run:
+#   $ mtga
+#   execute something else in the prefix:
+#   $ mtga <command>
+#
 
 export WINEPREFIX="${HOME}/Games/magic-the-gathering-arena/"
 export WINEARCH='win64'
 export WINEDEBUG='-all'
-
-export INSTALLER_URL='https://mtgarena.downloads.wizards.com/Live/Windows32/versions/1952.745934/MTGAInstaller_0.1.1952.745934.msi'
-export INSTALLER_BIN=$(basename $INSTALLER_URL)
 
 if [ $# -ne 0 ]
 then
   if [ "${1}" == "reinstall" ]
   then
     echo "Reinstalling.."
-    #cp $WINEPREFIX/user.reg /tmp/
-    #rm -rf $WINEPREFIX
-    #mkdir $WINEPREFIX
-    #mv /tmp/user.reg $WINEPREFIX
+    INSTALLER_URL=$2
+    INSTALLER_BIN=$(basename $INSTALLER_URL)
+    cp $WINEPREFIX/user.reg /tmp/
+    rm -rf $WINEPREFIX
+    mkdir $WINEPREFIX
+    mv /tmp/user.reg $WINEPREFIX
     cd $WINEPREFIX
     wget $INSTALLER_URL
     wine msiexec /i $INSTALLER_BIN
