@@ -7,10 +7,18 @@ export WINEARCH='win64'
 export INSTALLER_BIN='RSI-Setup-1.2.0.exe'
 export INSTALLER_URL="https://install.robertsspaceindustries.com/star-citizen/${INSTALLER_BIN}"
 
-export DXVK_VERSION='1.3.3'
+export DXVK_VERSION='1.6.1'
 export DXVK_DIR="dxvk-${DXVK_VERSION}"
 export DXVK_TAR="${DXVK_DIR}.tar.gz"
 export DXVK_URL="https://github.com/doitsujin/dxvk/releases/download/v${DXVK_VERSION}/${DXVK_TAR}"
+
+function install_dxvk(){
+  cd $WINEPREFIX
+  wget $DXVK_URL
+  tar xzvf $DXVK_TAR
+  cd $DXVK_DIR
+  ./setup_dxvk.sh install
+}
 
 if [ $# -ne 0 ]
 then
@@ -19,19 +27,19 @@ then
     mkdir -p $WINEPREFIX
     cd $WINEPREFIX
     winecfg
+    install_dxvk
     wget $INSTALLER_URL
-    wget $DXVK_URL
-    tar xzvf $DXVK_TAR
-    cd $DXVK_DIR
-    ./setup_dxvk.sh install
     cd $WINEPREFIX
     winetricks corefonts
     wine $INSTALLER_BIN
+  elif [ "${1}" == "update-dxvk" ]
+  then
+    install_dxvk
   else
     $@
   fi
 else
-  export DXVK_HUD=full
+  #export DXVK_HUD=full
   export DXVK_CONFIG_FILE=~/dxvk.conf
   wine "${WINEPREFIX}/drive_c/Program Files/Roberts Space Industries/RSI Launcher/RSI Launcher.exe"
 fi
