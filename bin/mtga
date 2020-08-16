@@ -24,6 +24,7 @@ then
     cd $WINEPREFIX
     wget $INSTALLER_URL
     wine msiexec /i $INSTALLER_BIN
+    wine reg ADD 'HKEY_CURRENT_USER\Software\Wine\X11 Driver' /v UseTakeFocus /d 'N' /f
   else
     $@
   fi
