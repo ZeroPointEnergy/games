@@ -18,7 +18,7 @@ then
   if [ "${1}" == "install" ]
   then
     echo "Installing ..."
-    INSTALLER_URL=$(curl --silent "https://mtgarena.downloads.wizards.com/Live/Windows32/version" | jq -r ".CurrentInstallerURL")
+    INSTALLER_URL=$(curl --silent "https://mtgarena.downloads.wizards.com/Live/Windows64/version" | jq -r ".CurrentInstallerURL")
     INSTALLER_BIN=$(basename $INSTALLER_URL)
     mkdir -p $WINEPREFIX
     cd $WINEPREFIX
