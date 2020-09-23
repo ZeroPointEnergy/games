@@ -1,8 +1,6 @@
 #!/bin/bash
 #
 # Usage:
-#   install/reinstall:
-#   $ mtga install
 #   run:
 #   $ mtga
 #   execute something else in the prefix:
@@ -13,21 +11,42 @@ export WINEPREFIX="${HOME}/Games/magic-the-gathering-arena/"
 export WINEARCH='win64'
 export WINEDEBUG='-all'
 
-if [ $# -ne 0 ]
-then
-  if [ "${1}" == "install" ]
-  then
-    echo "Installing ..."
-    INSTALLER_URL=$(curl --silent "https://mtgarena.downloads.wizards.com/Live/Windows64/version" | jq -r ".CurrentInstallerURL")
-    INSTALLER_BIN=$(basename $INSTALLER_URL)
-    mkdir -p $WINEPREFIX
-    cd $WINEPREFIX
+function update_dxvk() {
+  DXVK_LATEST=$(curl -s https://api.github.com/repos/doitsujin/dxvk/releases/latest)
+  DXVK_VERSION=$(echo $DXVK_LATEST | jq -r '.tag_name')
+  DXVK_URL=$(echo $DXVK_LATEST | jq -r '.assets[0].browser_download_url')
+  DXVK_TAR=$(basename $DXVK_URL)
+  DXVK_DIR=$(basename -s '.tar.gz' $DXVK_TAR)
+
+  cd $WINEPREFIX
+  if [ ! -f ${DXVK_TAR} ]; then
+    echo "Updating DXVK to version ${DXVK_VERSION}"
+    wget $DXVK_URL
+    tar xzvf $DXVK_TAR
+    cd $DXVK_DIR
+    ./setup_dxvk.sh install
+  fi
+}
+
+function update_mtga() {
+  INSTALLER_URL=$(curl --silent "https://mtgarena.downloads.wizards.com/Live/Windows64/version" | jq -r ".CurrentInstallerURL")
+  INSTALLER_BIN=$(basename $INSTALLER_URL)
+
+  mkdir -p $WINEPREFIX
+  cd $WINEPREFIX
+  if [ ! -f ${INSTALLER_BIN} ]; then
+    echo "Installing/Updating MTGA ..."
     wget $INSTALLER_URL
     wine msiexec /i $INSTALLER_BIN
     wine reg ADD 'HKEY_CURRENT_USER\Software\Wine\X11 Driver' /v UseTakeFocus /d 'N' /f
-  else
-    $@
   fi
+}
+
+if [ $# -ne 0 ]
+then
+  $@
 else
-  wine "${WINEPREFIX}/drive_c/Program Files (x86)/Wizards of the Coast/MTGA/MTGA.exe"
+  update_mtga
+  update_dxvk
+  wine "${WINEPREFIX}/drive_c/Program Files/Wizards of the Coast/MTGA/MTGA.exe"
 fi
