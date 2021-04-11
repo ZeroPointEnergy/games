@@ -1,0 +1,67 @@
+#!/bin/bash
+
+export WINEPREFIX="${HOME}/Games/elite_dangerous/"
+export WINEARCH='win64'
+export WINEDEBUG='-all'
+#export WINEDEBUG='+warn,+seh,+loaddll,+fimxe'
+#export WINE_MONO_TRACE="N:System.Diagnostics"
+#export WINE_MONO_TRACE=wrapper
+
+export INSTALLDIR="${HOME}/Games/legendary/EliteDangerous"
+export GAMEID='9c203b6ed35846e8a4a9ff1e314f6593'
+
+function install_dxvk() {
+  DXVK_LATEST=$(curl -s https://api.github.com/repos/doitsujin/dxvk/releases/latest)
+  DXVK_VERSION=$(echo $DXVK_LATEST | jq -r '.tag_name')
+  DXVK_URL=$(echo $DXVK_LATEST | jq -r '.assets[0].browser_download_url')
+  DXVK_TAR=$(basename $DXVK_URL)
+  DXVK_DIR=$(basename -s '.tar.gz' $DXVK_TAR)
+
+  cd $WINEPREFIX
+  if [ ! -f ${DXVK_TAR} ]; then
+    echo "Updating DXVK to version ${DXVK_VERSION}"
+    wget $DXVK_URL
+    tar xzvf $DXVK_TAR
+    cd $DXVK_DIR
+    ./setup_dxvk.sh install
+  fi
+}
+
+function install_wine_mono() {
+  MONO_URL='https://github.com/redmcg/wine-mono/releases/download/wine-mono-6.1.1_ED/wine-mono-6.1.1_ED-x86.msi'
+  MONO_BIN=$(basename $MONO_URL)
+
+  cd $WINEPREFIX
+  if [ ! -f ${MONO_BIN} ]; then
+    echo "Installing wine-mono..."
+    wget $MONO_URL
+    wine msiexec /i $MONO_BIN
+  fi
+}
+
+function call_winetricks() {
+  LOCKFILE="${WINEPREFIX}/.winetricks-${1}"
+  if [ ! -f "${LOCKFILE}" ]; then
+    winetricks $1 && touch $LOCKFILE
+  fi
+}
+
+function create_prefix() {
+  if [ ! -d "${WINEPREFIX}" ]; then
+    wine wineboot
+  fi
+}
+
+if [ $# -ne 0 ]
+then
+  $@
+else
+  legendary install $GAMEID
+  create_prefix
+  install_wine_mono
+  call_winetricks win7
+  install_dxvk
+  cd $INSTALLDIR
+  legendary -v launch --wine /usr/bin/wine64 --wine-prefix $WINEPREFIX $GAMEID
+  #wine ./EDLaunch.exe /novr /Epic
+fi
