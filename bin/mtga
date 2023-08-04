@@ -8,10 +8,12 @@
 #
 
 export WINEPREFIX="${HOME}/Games/magic-the-gathering-arena/"
+export WINEBIN="wine64"
+export WINECFG="winecfg"
 export WINEARCH='win64'
 export WINEDEBUG='-all'
 
-function update_dxvk() {
+function install_dxvk() {
   DXVK_LATEST=$(curl -s https://api.github.com/repos/doitsujin/dxvk/releases/latest)
   DXVK_VERSION=$(echo $DXVK_LATEST | jq -r '.tag_name')
   DXVK_URL=$(echo $DXVK_LATEST | jq -r '.assets[0].browser_download_url')
@@ -24,7 +26,9 @@ function update_dxvk() {
     wget $DXVK_URL
     tar xzvf $DXVK_TAR
     cd $DXVK_DIR
-    ./setup_dxvk.sh install
+    cp x64/*.dll $WINEPREFIX/drive_c/windows/system32
+    cp x32/*.dll $WINEPREFIX/drive_c/windows/syswow64
+    $WINECFG
   fi
 }
 
@@ -37,8 +41,8 @@ function update_mtga() {
   if [ ! -f ${INSTALLER_BIN} ]; then
     echo "Installing/Updating MTGA ..."
     wget $INSTALLER_URL
-    wine msiexec /i $INSTALLER_BIN
-    wine reg ADD 'HKEY_CURRENT_USER\Software\Wine\X11 Driver' /v UseTakeFocus /d 'N' /f
+    $WINEBIN msiexec /i $INSTALLER_BIN
+    $WINEBIN reg ADD 'HKEY_CURRENT_USER\Software\Wine\X11 Driver' /v UseTakeFocus /d 'N' /f
   fi
 }
 
@@ -48,5 +52,5 @@ then
 else
   update_mtga
   update_dxvk
-  wine "${WINEPREFIX}/drive_c/Program Files/Wizards of the Coast/MTGA/MTGA.exe"
+  $WINEBIN "${WINEPREFIX}/drive_c/Program Files/Wizards of the Coast/MTGA/MTGA.exe"
 fi
